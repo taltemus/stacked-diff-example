@@ -7,5 +7,6 @@ import (
 )
 
 func (w *CartWorkflow) RemoveTicketsActivity(ctx context.Context, input *cartv1.RemoveTicketsInput) (*cartv1.RemoveTicketsOutput, error) {
-	panic("not implemented")
+	// Do some business logic
+	return &cartv1.RemoveTicketsOutput{}, nil
 }
