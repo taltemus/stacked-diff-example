@@ -1,0 +1,11 @@
+version: v2
+modules:
+  - path: proto
+deps:
+  - buf.build/cludden/protoc-gen-go-temporal:81eb66e24ea5484ab4eb3564700e0b56
+lint:
+  use:
+    - DEFAULT
+breaking:
+  use:
+    - FILE

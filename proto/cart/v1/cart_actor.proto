@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package cart.v1;
+
+import "google/protobuf/empty.proto";
+import "temporal/v1/temporal.proto";
+
+option go_package = "github.com/taltemus/stacked-diff-example/generated/cart/v1;cartv1";
+
+// The CartActor defines the actor-style cart workflow, its activities, and signal.
+service CartActor {
+  // Starts the shopping cart workflow.
+  rpc StartCart(CartRequest) returns (CartResponse) {
+    option (temporal.v1.workflow) = {id: "cart/${! uuid_v4() }"};
+  }
+
+  // ReserveTickets is an activity that reserves tickets.
+  rpc ReserveTicketsActivity(ReserveTicketsInput) returns (ReserveTicketsOutput) {
+    option (temporal.v1.activity) = {
+      start_to_close_timeout: {seconds: 30}
+      retry_policy: {max_attempts: 3}
+    };
+  }
+
+  // RemoveTickets is an activity that removes tickets from the cart after a timeout.
+  rpc RemoveTicketsActivity(RemoveTicketsInput) returns (RemoveTicketsOutput) {
+    option (temporal.v1.activity) = {
+      start_to_close_timeout: {seconds: 30}
+      retry_policy: {max_attempts: 3}
+    };
+  }
+
+  // CheckoutCartActivity is an activity that removes tickets from the cart after a timeout.
+  rpc CheckoutCartActivity(CheckoutCartInput) returns (CheckoutCartOutput) {
+    option (temporal.v1.activity) = {
+      start_to_close_timeout: {seconds: 30}
+      retry_policy: {max_attempts: 3}
+    };
+  }
+
+  // CancelCartSignal allows external callers to cancel the cart reservation.
+  rpc CancelCartSignal(CancelCartSignalRequest) returns (google.protobuf.Empty) {
+    option (temporal.v1.signal) = {};
+  }
+}
+
+// Message definitions.
+message CartRequest {
+  string cart_id = 1;
+  string customer_id = 2;
+  // Comma-separated ticket IDs.
+  string ticket_ids = 3;
+}
+
+message CartResponse {
+  string confirmation = 1;
+}
+
+// ReserveTickets messages.
+message ReserveTicketsInput {
+  string cart_id = 1;
+  repeated string ticket_ids = 2;
+  int32 reservation_duration_seconds = 3;
+}
+
+message ReserveTicketsOutput {
+  string status = 1;
+}
+
+// RemoveTickets messages.
+message RemoveTicketsInput {
+  string cart_id = 1;
+  repeated string ticket_ids = 2;
+}
+
+message RemoveTicketsOutput {
+  string status = 1;
+}
+
+// Signal to cancel the cart.
+message CancelCartSignalRequest {
+  string cart_id = 1;
+  string reason = 2;
+}
+
+message CheckoutCartInput {}
+
+message CheckoutCartOutput {}
